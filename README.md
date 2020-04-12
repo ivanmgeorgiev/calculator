@@ -1,3 +1,3 @@
 # calculator
 
-Just a simple calcurator
+Just a simple calculator
