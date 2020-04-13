@@ -1,5 +1,6 @@
 from tkinter import *
-
+from tkinter import messagebox
+import math
 
 class Calculator:
 
@@ -13,18 +14,24 @@ class Calculator:
         self.text.set(0)
 
         # Variables
-        self.num1 = 0
-        self.num2 = 0
+        self.num = 0
         self.result = 0
+        self.error = 0
         self.operation = ''
 
         # taking input from the keyboard
         def changeText(update):
             if self.text.get() == '0' or self.text.get() == '+' or self.text.get() == '-' or self.text.get() == chr(215) or self.text.get() == chr(247):
-                self.text.set(update)
+                if update == '.':
+                    self.text.set('0.')
+                else:
+                    self.text.set(update)
             else:
-                update = self.text.get() + str(update)
-                self.text.set(update)
+                if self.text.get() == 'Error':
+                    self.text.set(update)
+                else:
+                    update = self.text.get() + str(update)
+                    self.text.set(update)
 
         # setting the menu
         self.menu = Menu(self.root)
@@ -32,6 +39,7 @@ class Calculator:
 
         self.subMenu = Menu(self.menu)
         self.menu.add_cascade(label='File', menu=self.subMenu)
+        self.subMenu.add_command(label='About', font=("Calibri", 10), command=lambda: messagebox.showinfo("About", "Calculator ver. 1.1 \n Ivan Georgiev"))
         self.subMenu.add_command(label='Exit', font=("Calibri", 10), command=quit)
 
         # Configure the main window and its size
@@ -46,6 +54,10 @@ class Calculator:
         # Buttons
         self.buttons_row0 = Frame(self.root)
         self.buttons_row0.pack(anchor=E)
+        self.button_pl_mi = Button(self.buttons_row0, text=chr(177), command=self.changeSign)
+        self.button_pl_mi.pack(side=LEFT)
+        self.button_sqr = Button(self.buttons_row0, text=chr(8730), command=self.calcSqrt)
+        self.button_sqr.pack(side=LEFT)
         self.button_clear = Button(self.buttons_row0, text="CE", command=self.clearText)
         self.button_clear.pack()
 
@@ -58,7 +70,7 @@ class Calculator:
         self.button9 = Button(self.buttons_row1, text="9", command=lambda: changeText(9))
         self.button9.pack(side=LEFT)
         self.button_divide = Button(self.buttons_row1, text=chr(247), command=self.calcDivide)
-        self.button_divide.pack(side=LEFT)
+        self.button_divide.pack()
 
         self.buttons_row2 = Frame(self.root)
         self.buttons_row2.pack()
@@ -70,7 +82,7 @@ class Calculator:
         self.button6 = Button(self.buttons_row2, text="6", command=lambda: changeText(6))
         self.button6.pack(side=LEFT)
         self.button_mult = Button(self.buttons_row2, text=chr(215), command=self.calcMultiply)
-        self.button_mult.pack(side=LEFT)
+        self.button_mult.pack()
 
         self.buttons_row3 = Frame(self.root)
         self.buttons_row3.pack()
@@ -81,7 +93,7 @@ class Calculator:
         self.button3 = Button(self.buttons_row3, text="3", command=lambda: changeText(3))
         self.button3.pack(side=LEFT)
         self.button_minus = Button(self.buttons_row3, text="-", command=self.calcExtract)
-        self.button_minus.pack(side=LEFT)
+        self.button_minus.pack()
 
         self.buttons_row4 = Frame(self.root)
         self.buttons_row4.pack()
@@ -92,60 +104,108 @@ class Calculator:
         self.button_result = Button(self.buttons_row4, text="=", command=self.show_result)
         self.button_result.pack(side=LEFT)
         self.button_plus = Button(self.buttons_row4, text="+", command=self.calcAdd)
-        self.button_plus.pack(side=LEFT)
+        self.button_plus.pack()
 
         self.root.mainloop()
 
     def clearText(self):
         self.text.set('0')
-        self.num1 = 0
-        self.num2 = 0
+        self.num = 0
         self.operation = ''
 
     def calcAdd(self):
-        if self.operation == '':
-            self.num1 = float(self.text.get())
-        self.text.set('+')
-        self.operation = 'add'
+        if self.text.get() == 'Error':
+            self.clearText()
+        else:
+            if self.operation == '':
+                self.num = float(self.text.get())
+                self.text.set('+')
+                self.operation = 'add'
+            else:
+                self.show_result()
 
     def calcExtract(self):
-        if self.operation == '':
-            self.num1 = float(self.text.get())
-        self.text.set('-')
-        self.operation = 'extract'
+        if self.text.get() == 'Error':
+            self.clearText()
+        else:
+            if self.operation == '':
+                self.num = float(self.text.get())
+                self.text.set('-')
+                self.operation = 'extract'
+            else:
+                self.show_result()
 
     def calcMultiply(self):
-        if self.operation == '':
-            self.num1 = float(self.text.get())
-        self.text.set(chr(215))
-        self.operation = 'multiply'
+        if self.text.get() == 'Error':
+            self.clearText()
+        else:
+            if self.operation == '':
+                self.num = float(self.text.get())
+                self.text.set(chr(215))
+                self.operation = 'multiply'
+            else:
+                self.show_result()
 
     def calcDivide(self):
-        if self.operation == '':
-            self.num1 = float(self.text.get())
-        self.text.set(chr(247))
-        self.operation = 'divide'
+        if self.text.get() == 'Error':
+            self.clearText()
+        else:
+            if self.operation == '':
+                self.num = float(self.text.get())
+                self.text.set(chr(247))
+                self.operation = 'divide'
+            else:
+                self.show_result()
+
+    def calcSqrt(self):
+        if self.text.get() == 'Error':
+            self.clearText()
+        else:
+            if self.operation == '':
+                self.operation = 'sqrt'
+                self.show_result()
+
+    def changeSign(self):
+        if float(self.text.get()) > 0:
+            update = '-' + self.text.get()
+            self.text.set(update)
+        elif float(self.text.get()) < 0:
+            update = -float(self.text.get())
+            if update - int(update) == 0:
+                update = int(update)
+            else:
+                update = round(update, 8)
+            self.text.set(update)
 
     def show_result(self):
-        self.num2 = float(self.text.get())
-        if self.operation == 'add':
-            self.result = self.num1 + self.num2
-        elif self.operation == 'extract':
-            self.result = self.num1 - self.num2
-        elif self.operation == 'multiply':
-            self.result = self.num1 * self.num2
-        elif self.operation == 'divide':
-            self.result = self.num1 / self.num2
+        if self.text.get() != '+' and self.text.get() != '-' and self.text.get() != chr(215) and self.text.get() != chr(247):
+            if self.operation == 'add':
+                self.result = self.num + float(self.text.get())
+            elif self.operation == 'extract':
+                self.result = self.num - float(self.text.get())
+            elif self.operation == 'multiply':
+                self.result = self.num * float(self.text.get())
+            elif self.operation == 'divide':
+                self.result = self.num / float(self.text.get())
+            elif self.operation == 'sqrt':
+                if float(self.text.get()) > 0:
+                    self.result = math.sqrt(float(self.text.get()))
+                else:
+                    self.error = 1
 
-        if self.result - int(self.result) == 0:
-            self.result = int(self.result)
-        else:
-            self.result = round(self.result, 8)
+            if not self.error:
+                if self.result - int(self.result) == 0:
+                    self.result = int(self.result)
+                else:
+                    self.result = round(self.result, 8)
+                self.text.set(self.result)
+                self.num = self.result
+            else:
+                self.result = 'Error'
+                self.text.set(self.result)
+                self.error = 0
 
-        self.text.set(self.result)
-        self.num1 = self.result
-        self.num2 = 0
-        self.operation = ''
+            self.operation = ''
 
 
 app = Calculator()
